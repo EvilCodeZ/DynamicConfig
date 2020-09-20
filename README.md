@@ -1,7 +1,7 @@
 # DynamicConfig
 Repository for Dynamic config file format.
 
-####Example:
+#### Example:
 ```
 {
   first= = "Test",
