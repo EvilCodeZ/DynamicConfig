@@ -28,7 +28,8 @@ public class MapValue extends BaseValue {
 	}
 	
 	public BaseValue setMap(String key, MapValue map) {
-		return valueMap.put(key, map);
+		valueMap.put(key, map);
+		return map;
 	}
 	
 	public ListValue getList(String key) {
@@ -39,8 +40,9 @@ public class MapValue extends BaseValue {
 		return null;
 	}
 	
-	public BaseValue setList(String key, ListValue map) {
-		return valueMap.put(key, map);
+	public ListValue setList(String key, ListValue list) {
+		valueMap.put(key, list);
+		return list;
 	}
 	
 	public String getString(String key) {
@@ -52,7 +54,9 @@ public class MapValue extends BaseValue {
 	}
 	
 	public BaseValue setString(String key, String value) {
-		return valueMap.put(key, new StringValue(value));
+		StringValue val = new StringValue(value);
+		valueMap.put(key, val);
+		return val;
 	}
 	
 	public char getChar(String key) {
@@ -64,7 +68,9 @@ public class MapValue extends BaseValue {
 	}
 	
 	public BaseValue setChar(String key, char value) {
-		return valueMap.put(key, new CharValue(value));
+		CharValue val = new CharValue(value);
+		valueMap.put(key, val);
+		return val;
 	}
 	
 	public Number getNumber(String key) {
@@ -76,7 +82,23 @@ public class MapValue extends BaseValue {
 	}
 	
 	public BaseValue setNumber(String key, Number value) {
-		return valueMap.put(key, new NumberValue(value));
+		NumberValue val = new NumberValue(value);
+		valueMap.put(key, val);
+		return val;
+	}
+	
+	public boolean getBoolean(String key) {
+		try {
+			return ((BooleanValue) valueMap.get(key)).getValue();
+		}catch(ClassCastException ignored) {
+		}
+		return false;
+	}
+	
+	public BaseValue setBoolean(String key, boolean value) {
+		BooleanValue val = new BooleanValue(value);
+		valueMap.put(key, val);
+		return val;
 	}
 	
 	public BaseValue get(String key) {
