@@ -4,7 +4,7 @@ Repository for Dynamic config file format.
 #### Example:
 ```
 {
-  first= = "Test",
+  first = "Test",
   second = 1,
   third = 'a',
   fourth = true,
