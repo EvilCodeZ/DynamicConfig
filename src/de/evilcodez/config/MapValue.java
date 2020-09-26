@@ -50,7 +50,7 @@ public class MapValue extends BaseValue {
 			return ((StringValue) valueMap.get(key)).getValue();
 		}catch(ClassCastException ignored) {
 		}
-		return null;
+		return "";
 	}
 	
 	public BaseValue setString(String key, String value) {
