@@ -14,8 +14,8 @@ import de.evilcodez.config.utils.ConfigUtils;
 
 public class ConfigWriter {
 
-	private String tabString;
-	private boolean prettyPrinting;
+	private final String tabString;
+	private final boolean prettyPrinting;
 	private int tabCount;
 	private boolean isWriting;
 
@@ -53,9 +53,9 @@ public class ConfigWriter {
 			}
 		}
 		if (value instanceof StringValue) {
-			sb.append("\"" + ConfigUtils.escapeString(((StringValue) value).getValue()) + "\"");
+			sb.append("\"").append(ConfigUtils.escapeString(((StringValue) value).getValue())).append("\"");
 		} else if (value instanceof CharValue) {
-			sb.append("'" + ConfigUtils.escapeString(((CharValue) value).getValue() + "") + "'");
+			sb.append("'").append(ConfigUtils.escapeString(((CharValue) value).getValue() + "")).append("'");
 		} else if (value instanceof NumberValue) {
 			sb.append(((NumberValue) value).getValue().toString());
 		} else if (value instanceof MapValue) {
@@ -77,7 +77,7 @@ public class ConfigWriter {
 			return (pretty ? tabString() : "") + startChar + endChar;
 		}
 		final StringBuilder sb = new StringBuilder();
-		sb.append(startChar + (pretty ? System.lineSeparator() : ""));
+		sb.append(startChar).append(pretty ? System.lineSeparator() : "");
 		tabCount++;
 
 		int idx = 0;
@@ -115,7 +115,7 @@ public class ConfigWriter {
 			return (b ? tabString() : "") + "[]";
 		}
 		final StringBuilder sb = new StringBuilder();
-		sb.append("[" + (b ? System.lineSeparator() : ""));
+		sb.append("[").append(b ? System.lineSeparator() : "");
 		tabCount++;
 		final List<BaseValue> list = value.getElements();
 
