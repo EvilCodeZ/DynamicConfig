@@ -84,7 +84,7 @@ public class ConfigWriter {
 		for (String key : map.keySet()) {
 			if (!ConfigUtils.isValidMapFieldName(key)) {
 				throw new IllegalArgumentException(
-						"Illegal field name in" + (startChar == '(' ? "attribute map" : "map") + ".");
+						"Illegal field name " + (startChar == '(' ? "attribute map" : "map") + ": " + key);
 			}
 			if (pretty) {
 				sb.append(tabString());

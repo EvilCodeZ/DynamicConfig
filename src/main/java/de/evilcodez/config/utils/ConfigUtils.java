@@ -117,7 +117,8 @@ public class ConfigUtils {
 				|| c == 'ü' || c == 'Ü'
 				|| c == 'ß'
 				|| c == '_' || c == '-'
-				|| c == '"' || c == '\'';
+				|| c == '"' || c == '\''
+				|| c == '.';
 	}
 	
 	public static boolean isDigit(char c) {
