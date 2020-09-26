@@ -26,16 +26,16 @@ Repository for Dynamic config file format.
 public class ConfigExample {
     
     public static void main(String[] args) {
-    		// Parse config
-    		final BaseValue value = new ConfigParser().parse("{a=\"Test\",b=1}");
-    		final MapValue map = (MapValue) value;
-    		System.out.println("a = " + map.getString("a"));
-    		System.out.println("b = " + map.getNumber("b").intValue());
-            
-    		// Serialize config
-    		boolean prettyPrinting = true;
-    		final String config = new ConfigWriter(prettyPrinting).serialize(map);
-    		System.out.println(config);
+        // Parse config
+        final BaseValue value = new ConfigParser().parse("{a=\"Test\",b=1}");
+        final MapValue map = (MapValue) value;
+        System.out.println("a = " + map.getString("a"));
+        System.out.println("b = " + map.getNumber("b").intValue());
+        
+        // Serialize config
+        boolean prettyPrinting = true;
+        final String config = new ConfigWriter(prettyPrinting).serialize(map);
+        System.out.println(config);
     }
 }
 ```
