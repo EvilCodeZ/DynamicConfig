@@ -1,5 +1,8 @@
 package de.evilcodez.config.serialization;
 
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
@@ -74,7 +77,7 @@ public class ConfigWriter {
 		boolean isAttribMap = startChar == '(' && endChar == ')';
 		boolean pretty = prettyPrinting && !isAttribMap;
 		if (map.isEmpty()) {
-			return (pretty ? tabString() : "") + startChar + endChar;
+			return "" + startChar + endChar;
 		}
 		final StringBuilder sb = new StringBuilder();
 		sb.append(startChar).append(pretty ? System.lineSeparator() : "");
@@ -146,5 +149,12 @@ public class ConfigWriter {
 			sb.append(tabString);
 		}
 		return sb.toString();
+	}
+
+	public void saveFile(BaseValue value, File file) throws IOException {
+		final FileWriter fw = new FileWriter(file);
+		fw.write(this.serialize0(value));
+		fw.flush();
+		fw.close();
 	}
 }

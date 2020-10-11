@@ -1,5 +1,6 @@
 package de.evilcodez.config.serialization;
 
+import java.io.*;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -330,8 +331,19 @@ public class ConfigParser {
 	}
 	
 	private void assertEOF(char[] content) {
-		if(index >= content.length) {
+		if (index >= content.length) {
 			throw new SyntaxException(line, "Not expected '<eof>'");
 		}
+	}
+
+	public BaseValue loadFile(File file) throws IOException {
+		final BufferedReader br = new BufferedReader(new FileReader(file));
+		final StringBuilder sb = new StringBuilder();
+		String line = null;
+		while((line = br.readLine()) != null) {
+			sb.append(line).append(System.lineSeparator());
+		}
+		br.close();
+		return this.parse(sb.toString());
 	}
 }

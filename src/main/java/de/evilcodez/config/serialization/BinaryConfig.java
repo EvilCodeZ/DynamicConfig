@@ -1,10 +1,6 @@
 package de.evilcodez.config.serialization;
 
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
+import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -207,6 +203,20 @@ public class BinaryConfig {
 		byte[] data = new byte[in.readInt()];
 		in.readFully(data);
 		return new String(data, StandardCharsets.UTF_8);
+	}
+
+	public static void saveFile(BaseValue value, File file) throws IOException {
+		final FileOutputStream output = new FileOutputStream(file);
+		BinaryConfig.writeValue(value, USE_MAGIC, output);
+		output.flush();
+		output.close();
+	}
+
+	public static BaseValue loadFile(File file) throws IOException {
+		final FileInputStream input = new FileInputStream(file);
+		final BaseValue value = BinaryConfig.readValue(USE_MAGIC, input);
+		input.close();
+		return value;
 	}
 
 	static {
