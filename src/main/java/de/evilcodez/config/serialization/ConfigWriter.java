@@ -18,18 +18,25 @@ import de.evilcodez.config.utils.ConfigUtils;
 public class ConfigWriter {
 
 	private final String tabString;
-	private final boolean prettyPrinting;
+	private boolean prettyPrinting;
+	private boolean semicolonSeperator;
+	private boolean mapColonSeperator;
 	private int tabCount;
 	private boolean isWriting;
 
 	public ConfigWriter() {
-		this.tabString = "\t";
-		this.prettyPrinting = false;
+		this(false);
 	}
 
 	public ConfigWriter(boolean prettyPrinting) {
+		this(prettyPrinting, false, false);
+	}
+
+	public ConfigWriter(boolean prettyPrinting, boolean semicolonSeperator, boolean mapColonSeperator) {
 		this.tabString = "\t";
 		this.prettyPrinting = prettyPrinting;
+		this.semicolonSeperator = semicolonSeperator;
+		this.mapColonSeperator = mapColonSeperator;
 	}
 
 	public ConfigWriter(boolean prettyPrinting, String tabString) {
@@ -93,10 +100,13 @@ public class ConfigWriter {
 				sb.append(tabString());
 			}
 			sb.append(key);
-			sb.append(prettyPrinting ? " = " : "=");
+			if(prettyPrinting && !mapColonSeperator) sb.append(" ");
+			sb.append(mapColonSeperator ? ":" : "=");
+			if(prettyPrinting) sb.append(" ");
 			sb.append(this.serialize0(map.get(key)));
 			if (idx < map.size() - 1) {
-				sb.append(prettyPrinting && isAttribMap ? ", " : ",");
+				final char seperator = semicolonSeperator ? ';' : ',';
+				sb.append(prettyPrinting && isAttribMap ? seperator + " " : seperator);
 			}
 			if (pretty) {
 				sb.append(System.lineSeparator());
@@ -128,7 +138,7 @@ public class ConfigWriter {
 			}
 			sb.append(this.serialize0(list.get(i)));
 			if (i < list.size() - 1) {
-				sb.append(",");
+				sb.append(semicolonSeperator ? ';' : ',');
 			}
 			if (b) {
 				sb.append(System.lineSeparator());
@@ -156,5 +166,29 @@ public class ConfigWriter {
 		fw.write(this.serialize0(value));
 		fw.flush();
 		fw.close();
+	}
+
+	public boolean isMapColonSeperator() {
+		return mapColonSeperator;
+	}
+
+	public void setMapColonSeperator(boolean mapColonSeperator) {
+		this.mapColonSeperator = mapColonSeperator;
+	}
+
+	public boolean isPrettyPrinting() {
+		return prettyPrinting;
+	}
+
+	public void setPrettyPrinting(boolean prettyPrinting) {
+		this.prettyPrinting = prettyPrinting;
+	}
+
+	public boolean isSemicolonSeperator() {
+		return semicolonSeperator;
+	}
+
+	public void setSemicolonSeperator(boolean semicolonSeperator) {
+		this.semicolonSeperator = semicolonSeperator;
 	}
 }
