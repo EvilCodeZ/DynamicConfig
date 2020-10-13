@@ -20,11 +20,25 @@ public class ConfigParser {
 	
 	private int index;
 	private int line;
+	private int depth;
+	private int maxDepth;
 	private boolean isParsing;
-	
-	public ConfigParser() {
+
+	/**
+	 * @param maxDepth set to 0 to disable depth check.
+	 */
+	public ConfigParser(int maxDepth) {
+		this.maxDepth = maxDepth;
 		this.index = 0;
 		this.line = 1;
+		this.depth = 0;
+	}
+
+	/**
+	 * Creates a new parser with default depth check (512).
+	 */
+	public ConfigParser() {
+		this(512);
 	}
 	
 	public BaseValue parse(String content) {
@@ -34,6 +48,7 @@ public class ConfigParser {
 		isParsing = true;
 		index = 0;
 		line = 1;
+		depth = 0;
 		try {
 			final char[] chars = content.toCharArray();
 			final BaseValue value = this.parse0(chars);
@@ -50,14 +65,19 @@ public class ConfigParser {
 		
 		Map<String, BaseValue> attributes = null;
 		if(content[index] == '(') {
+			depth++;
+			this.checkDepth();
 			attributes = this.parseMap(content, '(', ')').getValueMap();
+			depth--;
 			index++;
 			this.skipWhiteSpaces(content);
 		}else {
 			attributes = new HashMap<>();
 		}
 		BaseValue value = null;
-		
+
+		depth++;
+		this.checkDepth();
 		final char c = content[index];
 		if(c == '{') {
 			value = this.parseMap(content, '{', '}');
@@ -74,6 +94,7 @@ public class ConfigParser {
 		}else {
 			throw new SyntaxException(line, "Not expected '" + c + "'");
 		}
+		depth--;
 		value.setAttributes(attributes);
 		return value;
 	}
@@ -336,6 +357,17 @@ public class ConfigParser {
 		}
 	}
 
+	private void checkDepth() {
+		if(maxDepth < 1) {
+			return;
+		}
+		if(depth > maxDepth) {
+			final SyntaxException ex = new SyntaxException(line, "Depth check failed: depth > " + maxDepth);
+			ex.setStackTrace(Arrays.stream(ex.getStackTrace()).filter(ste -> !ste.getClassName().equals(this.getClass().getName())).toArray(StackTraceElement[]::new));
+			throw ex;
+		}
+	}
+
 	public BaseValue loadFile(File file) throws IOException {
 		final BufferedReader br = new BufferedReader(new FileReader(file));
 		final StringBuilder sb = new StringBuilder();
@@ -345,5 +377,13 @@ public class ConfigParser {
 		}
 		br.close();
 		return this.parse(sb.toString());
+	}
+
+	public int getMaxDepth() {
+		return maxDepth;
+	}
+
+	public void setMaxDepth(int maxDepth) {
+		this.maxDepth = maxDepth;
 	}
 }

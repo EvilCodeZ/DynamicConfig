@@ -18,8 +18,8 @@ import de.evilcodez.config.StringValue;
 
 public class BinaryConfig {
 
-	private static final Map<Class<? extends BaseValue>, Integer> CLASS_TO_IDMAP = new HashMap<Class<? extends BaseValue>, Integer>();
-	private static final Map<Integer, Class<? extends BaseValue>> ID_TO_CLASSMAP = new HashMap<Integer, Class<? extends BaseValue>>();
+	private static final Map<Class<? extends BaseValue>, Integer> CLASS_TO_IDMAP = new HashMap<>();
+	private static final Map<Integer, Class<? extends BaseValue>> ID_TO_CLASSMAP = new HashMap<>();
 	private static final byte[] MAGIC_BYTES = "DCONF".getBytes(StandardCharsets.US_ASCII);
 	public static final int USE_MAGIC = 1 << 1;
 
@@ -124,6 +124,10 @@ public class BinaryConfig {
 	}
 
 	public static BaseValue readValue(int flags, InputStream input) throws IOException {
+		return readValue(flags, input, 512);
+	}
+
+	public static BaseValue readValue(int flags, InputStream input, int maxDepth) throws IOException {
 		DataInputStream in = null;
 		boolean useMagic = (flags & USE_MAGIC) != 0;
 		if (useMagic) {
@@ -134,10 +138,17 @@ public class BinaryConfig {
 			}
 		}
 		in = new DataInputStream(input);
-		return readValue0(in);
+		return readValue0(in, 0, maxDepth);
 	}
 
-	private static BaseValue readValue0(DataInputStream in) throws IOException {
+	private static BaseValue readValue0(DataInputStream in, int depth, int maxDepth) throws IOException {
+
+		if(maxDepth > 0 && depth > maxDepth) {
+			final IOException ex = new IOException("Depth check failed: depth > " + maxDepth);
+			ex.setStackTrace(Arrays.stream(ex.getStackTrace()).filter(ste -> !ste.getClassName().equals(BinaryConfig.class.getName())).toArray(StackTraceElement[]::new));
+			throw ex;
+		}
+
 		int bitmask = in.readUnsignedByte();
 		int id = bitmask & 0xF;
 		int additionalData = bitmask >> 4;
@@ -150,7 +161,7 @@ public class BinaryConfig {
 		int count = in.readInt();
 		final Map<String, BaseValue> attribs = new HashMap<>(count);
 		for(int i = 0; i < count; i++) {
-			attribs.put(readString(in), readValue0(in));
+			attribs.put(readString(in), readValue0(in, depth + 1, maxDepth));
 		}
 		BaseValue value = null;
 		
@@ -164,14 +175,14 @@ public class BinaryConfig {
 			count = in.readInt();
 			final List<BaseValue> list = new ArrayList<BaseValue>(count);
 			for(int i = 0; i < count; i++) {
-				list.add(readValue0(in));
+				list.add(readValue0(in, depth + 1, maxDepth));
 			}
 			value = new ListValue(list);
 		}else if(clazz == MapValue.class) {
 			count = in.readInt();
 			final Map<String, BaseValue> map = new HashMap<>(count);
 			for(int i = 0; i < count; i++) {
-				map.put(readString(in), readValue0(in));
+				map.put(readString(in), readValue0(in, depth + 1, maxDepth));
 			}
 			value = new MapValue(map);
 		}else if(clazz == BooleanValue.class) {
