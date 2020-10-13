@@ -152,7 +152,7 @@ public class ConfigParser {
 				continue;
 			}
 			
-			if(c == '=' && parsingField) {
+			if((c == '=' || c == ':') && parsingField) {
 				if(!ConfigUtils.isValidMapFieldName(fieldName)) {
 					throw new SyntaxException(line, "Field name '" + fieldName + "' is not valid.");
 				}
