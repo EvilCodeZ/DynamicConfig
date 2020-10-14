@@ -6,14 +6,13 @@ import de.evilcodez.config.NullValue;
 import de.evilcodez.config.serialization.object.ObjectSerializer;
 import de.evilcodez.config.serialization.object.TypeSerializer;
 
-import java.util.AbstractList;
 import java.util.ArrayList;
 import java.util.Arrays;
 
-public class ListSerializer implements TypeSerializer<AbstractList> {
+public class ArrayListSerializer implements TypeSerializer<ArrayList> {
 
     @Override
-    public BaseValue serialize(ObjectSerializer serializer, AbstractList value, Class<?> typeClass) {
+    public BaseValue serialize(ObjectSerializer serializer, ArrayList value, Class<?> typeClass) {
         final ListValue list = new ListValue();
         for(int i = 0; i < value.size(); i++) {
             final Object obj = value.get(i);
@@ -28,7 +27,7 @@ public class ListSerializer implements TypeSerializer<AbstractList> {
     }
 
     @Override
-    public AbstractList deserialize(ObjectSerializer serializer, BaseValue value, Class<?> typeClass) {
+    public ArrayList deserialize(ObjectSerializer serializer, BaseValue value, Class<?> typeClass) {
         if(value instanceof NullValue) {
             return null;
         }
