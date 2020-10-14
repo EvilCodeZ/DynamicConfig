@@ -81,7 +81,7 @@ public class ConfigParser {
 		}else if(c == '\'') {
 			value = this.parseCharacter(content);
 		}else if(c == '-' || ConfigUtils.isDigit(c)) {
-			value = this.parseInt(content);
+			value = this.parseNumber(content);
 		}else if(c == 't' || c == 'f') {
 			value = this.parseBoolean(content);
 		}else if(Character.toLowerCase(c) == 'n') {
@@ -202,7 +202,7 @@ public class ConfigParser {
 		return new MapValue(map);
 	}
 	
-	private NumberValue parseInt(char[] content) {
+	private NumberValue parseNumber(char[] content) {
 		final StringBuilder sb = new StringBuilder();
 		if(content[index] == '-') {
 			sb.append('-');
@@ -220,10 +220,10 @@ public class ConfigParser {
 				hasE = true;
 				index++;
 				continue;
-			}else if(c == 'e' && hasE) {
+			}else if(c == 'E' && hasE) {
 				throw new SyntaxException(line, "Unexpected character in number: " + c);
 			}
-			if(c != '.' && !ConfigUtils.isDigit(c)) {
+			if(c != '.' && c != '-' && !ConfigUtils.isDigit(c)) {
 				break;
 			}else if(c == '.') {
 				isFloat = true;
@@ -266,7 +266,7 @@ public class ConfigParser {
 		if(!result.equalsIgnoreCase("true") && !result.equalsIgnoreCase("false")) {
 			throw new SyntaxException(line, "Not a boolean value (true/false): " + result);
 		}
-		return new BooleanValue(Boolean.valueOf(result).booleanValue());
+		return new BooleanValue(Boolean.parseBoolean(result));
 	}
 	
 	private StringValue parseString(char[] content) {
