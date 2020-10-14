@@ -6,13 +6,7 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
-import de.evilcodez.config.BaseValue;
-import de.evilcodez.config.BooleanValue;
-import de.evilcodez.config.CharValue;
-import de.evilcodez.config.ListValue;
-import de.evilcodez.config.MapValue;
-import de.evilcodez.config.NumberValue;
-import de.evilcodez.config.StringValue;
+import de.evilcodez.config.*;
 import de.evilcodez.config.utils.ConfigUtils;
 
 public class ConfigWriter {
@@ -74,6 +68,8 @@ public class ConfigWriter {
 			sb.append(this.serializeList((ListValue) value));
 		} else if (value instanceof BooleanValue) {
 			sb.append(((BooleanValue) value).getValue());
+		} else if (value instanceof NullValue) {
+			sb.append("null");
 		} else {
 			throw new IllegalArgumentException("Unknown Value type: " + value.getClass().getName());
 		}
@@ -125,7 +121,7 @@ public class ConfigWriter {
 	private String serializeList(ListValue value) {
 		boolean b = prettyPrinting;
 		if (value.getElements().isEmpty()) {
-			return (b ? tabString() : "") + "[]";
+			return "[]";
 		}
 		final StringBuilder sb = new StringBuilder();
 		sb.append("[").append(b ? System.lineSeparator() : "");

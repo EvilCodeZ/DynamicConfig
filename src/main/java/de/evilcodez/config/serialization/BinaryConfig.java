@@ -8,13 +8,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import de.evilcodez.config.BaseValue;
-import de.evilcodez.config.BooleanValue;
-import de.evilcodez.config.CharValue;
-import de.evilcodez.config.ListValue;
-import de.evilcodez.config.MapValue;
-import de.evilcodez.config.NumberValue;
-import de.evilcodez.config.StringValue;
+import de.evilcodez.config.*;
 
 public class BinaryConfig {
 
@@ -67,6 +61,8 @@ public class BinaryConfig {
 			out.writeByte(id);
 			writeMap(value.getAttributes(), out);
 			writeMap(map, out);
+		}else if(value instanceof NullValue) {
+			out.writeByte(id);
 		}
 	}
 	
@@ -187,6 +183,8 @@ public class BinaryConfig {
 			value = new MapValue(map);
 		}else if(clazz == BooleanValue.class) {
 			value = new BooleanValue(additionalData > 0);
+		}else if(clazz == NullValue.class){
+			value = new NullValue();
 		}
 		value.setAttributes(attribs);
 		return value;
@@ -237,6 +235,7 @@ public class BinaryConfig {
 		CLASS_TO_IDMAP.put(NumberValue.class, 4);
 		CLASS_TO_IDMAP.put(StringValue.class, 5);
 		CLASS_TO_IDMAP.put(BooleanValue.class, 6);
+		CLASS_TO_IDMAP.put(NullValue.class, 7);
 		CLASS_TO_IDMAP.forEach((k, v) -> ID_TO_CLASSMAP.put(v, k));
 	}
 }

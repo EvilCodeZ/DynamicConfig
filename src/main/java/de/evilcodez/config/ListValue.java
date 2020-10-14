@@ -26,12 +26,20 @@ public class ListValue extends BaseValue {
 	}
 	
 	public StringValue addString(String value) {
+		if(value == null) {
+			this.elements.add(new NullValue());
+			return null;
+		}
 		final StringValue val = new StringValue(value);
 		this.elements.add(val);
 		return val;
 	}
 	
 	public NumberValue addNumber(Number value) {
+		if(value == null) {
+			this.elements.add(new NullValue());
+			return null;
+		}
 		final NumberValue val = new NumberValue(value);
 		this.elements.add(val);
 		return val;
@@ -50,15 +58,22 @@ public class ListValue extends BaseValue {
 	}
 	
 	public BaseValue add(BaseValue value) {
+		if(value == null) {
+			final NullValue n = new NullValue();
+			this.elements.add(n);
+			return n;
+		}
 		this.elements.add(value);
 		return value;
 	}
 	
 	public BaseValue get(int index) {
+		if(this.isNullValue(index)) return null;
 		return this.elements.get(index);
 	}
 	
 	public String getString(int index) {
+		if(this.isNullValue(index)) return null;
 		try {
 			return ((StringValue) this.elements.get(index)).getValue();
 		}catch(ClassCastException ignored) {}
@@ -66,6 +81,7 @@ public class ListValue extends BaseValue {
 	}
 	
 	public Number getNumber(int index) {
+		if(this.isNullValue(index)) return null;
 		try {
 			return ((NumberValue) this.elements.get(index)).getValue();
 		}catch(ClassCastException ignored) {}
@@ -87,6 +103,7 @@ public class ListValue extends BaseValue {
 	}
 	
 	public ListValue getList(int index) {
+		if(this.isNullValue(index)) return null;
 		try {
 			return (ListValue) this.elements.get(index);
 		}catch(ClassCastException ignored) {}
@@ -94,10 +111,19 @@ public class ListValue extends BaseValue {
 	}
 	
 	public MapValue getMap(int index) {
+		if(this.isNullValue(index)) return null;
 		try {
 			return (MapValue) this.elements.get(index);
 		}catch(ClassCastException ignored) {}
 		return new MapValue();
+	}
+
+	public boolean isNullValue(int index) {
+		return this.elements.get(index) instanceof NullValue;
+	}
+
+	public int size() {
+		return elements.size();
 	}
 	
 	@Override

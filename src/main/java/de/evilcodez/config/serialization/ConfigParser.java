@@ -1,23 +1,16 @@
 package de.evilcodez.config.serialization;
 
-import java.io.*;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import de.evilcodez.config.BaseValue;
-import de.evilcodez.config.BooleanValue;
-import de.evilcodez.config.CharValue;
-import de.evilcodez.config.ListValue;
-import de.evilcodez.config.MapValue;
-import de.evilcodez.config.NumberValue;
-import de.evilcodez.config.StringValue;
+import de.evilcodez.config.*;
 import de.evilcodez.config.utils.ConfigUtils;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
+import java.util.*;
+
 public class ConfigParser {
-	
+
 	private int index;
 	private int line;
 	private int depth;
@@ -40,7 +33,7 @@ public class ConfigParser {
 	public ConfigParser() {
 		this(512);
 	}
-	
+
 	public BaseValue parse(String content) {
 		if(isParsing) {
 			throw new RuntimeException("Already parsing!");
@@ -91,12 +84,37 @@ public class ConfigParser {
 			value = this.parseInt(content);
 		}else if(c == 't' || c == 'f') {
 			value = this.parseBoolean(content);
+		}else if(Character.toLowerCase(c) == 'n') {
+			value = this.parseNull(content);
 		}else {
 			throw new SyntaxException(line, "Not expected '" + c + "'");
 		}
 		depth--;
 		value.setAttributes(attributes);
 		return value;
+	}
+
+	private NullValue parseNull(char[] content) {
+		assertEOF(content);
+		if(Character.toLowerCase(content[index]) != 'n') {
+			throw new SyntaxException(line, "Expected null token!");
+		}
+		index++;
+		assertEOF(content);
+		if(Character.toLowerCase(content[index]) != 'u') {
+			throw new SyntaxException(line, "Expected null token!");
+		}
+		index++;
+		assertEOF(content);
+		if(Character.toLowerCase(content[index]) != 'l') {
+			throw new SyntaxException(line, "Expected null token!");
+		}
+		index++;
+		assertEOF(content);
+		if(Character.toLowerCase(content[index]) != 'l') {
+			throw new SyntaxException(line, "Expected null token!");
+		}
+		return new NullValue();
 	}
 	
 	private ListValue parseList(char[] content) {

@@ -106,7 +106,9 @@ public class MapValue extends BaseValue {
 	}
 	
 	public BaseValue set(String key, BaseValue value) {
-		return valueMap.put(key, value);
+		BaseValue val = value == null ? new NullValue() : value;
+		valueMap.put(key, val);
+		return val;
 	}
 	
 	public boolean has(String key) {
@@ -118,6 +120,10 @@ public class MapValue extends BaseValue {
 			return false;
 		}
 		return get(key).getClass() == childClass;
+	}
+
+	public boolean isNull(String key) {
+		return has(key) && get(key) instanceof NullValue;
 	}
 	
 	public Map<String, BaseValue> getValueMap() {

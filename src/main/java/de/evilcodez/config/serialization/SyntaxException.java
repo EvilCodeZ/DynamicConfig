@@ -2,11 +2,6 @@ package de.evilcodez.config.serialization;
 
 public class SyntaxException extends RuntimeException {
 	
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = -3737415693389945384L;
-	
 	private int line;
 	
 	public SyntaxException(int line, String message) {
