@@ -43,6 +43,7 @@ public class ConfigWriter {
 			throw new RuntimeException("Already writing!");
 		}
 		isWriting = true;
+		this.tabCount = 0;
 		final String result = this.serialize0(value);
 		isWriting = false;
 		return result;

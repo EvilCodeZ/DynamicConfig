@@ -44,6 +44,8 @@ public class ConfigExample {
         // Serialize config
         boolean prettyPrinting = true;
         final ConfigWriter writer = new ConfigWriter(prettyPrinting);
+        writer.setMapColonSeperator(false);
+        writer.setSemicolonSeperator(false);
         final String config = writer.serialize(map);
         System.out.println(config);
         
