@@ -4,6 +4,7 @@ import de.evilcodez.config.BaseValue;
 import de.evilcodez.config.NullValue;
 import de.evilcodez.config.serialization.object.defaults.*;
 
+import java.net.InetAddress;
 import java.util.AbstractList;
 import java.util.HashMap;
 import java.util.UUID;
@@ -23,6 +24,7 @@ public class ObjectSerializer {
         this.registerTypeSerializer(BaseValue.class, new BaseValueSerializer());
         this.registerTypeSerializer(AbstractList.class, new ListSerializer());
         this.registerTypeSerializer(UUID.class, new UUIDSerializer());
+        this.registerTypeSerializer(InetAddress.class, new InetAddressSerializer());
     }
 
     public <T> BaseValue serialize(T value) {

@@ -17,7 +17,8 @@ Repository for Dynamic config file format.
     'b',
     false
   },
-  seventh = (testAttribute = "Test", test2 = [1, 2, 3, 4]) 8
+  seventh = (testAttribute = "Test", test2 = [1, 2, 3, 4]) 8,
+  eight = null
 }
 ```
 
@@ -25,6 +26,14 @@ Repository for Dynamic config file format.
 ```java
 public class ConfigExample {
     
+    // This annotation is optional.
+    @SerializedFieldName("test")
+    private final int testField;
+    
+    public ConfigExample(int test) {
+        this.testField = test;
+    }
+
     public static void main(String[] args) {
         // Parse config
         final BaseValue value = new ConfigParser().parse("{a=\"Test\",b=1}");
@@ -34,8 +43,18 @@ public class ConfigExample {
         
         // Serialize config
         boolean prettyPrinting = true;
-        final String config = new ConfigWriter(prettyPrinting).serialize(map);
+        final ConfigWriter writer = new ConfigWriter(prettyPrinting);
+        final String config = writer.serialize(map);
         System.out.println(config);
+        
+        // Object serialization
+        final ObjectSerializer serializer = new ObjectSerializer();
+        // Serialize
+        final BaseValue val = serializer.serialize(new ConfigExample(6));
+        System.out.println(writer.serialize(val));
+        // Deserialize
+        final ConfigExample example = serializer.deserialize(val, ConfigExample.class);
+        System.out.println(example.testField);
     }
 }
 ```
