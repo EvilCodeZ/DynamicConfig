@@ -63,6 +63,16 @@ public class ConfigWriter {
 		} else if (value instanceof CharValue) {
 			sb.append("'").append(ConfigUtils.escapeString(((CharValue) value).getValue() + "")).append("'");
 		} else if (value instanceof NumberValue) {
+			final NumberValue val = (NumberValue) value;
+			if(val.getValue() instanceof Double) {
+				if(!Double.isFinite(val.getValue().doubleValue())) {
+					throw new IllegalArgumentException("NumberValue is not finite!");
+				}
+			}else if(val.getValue() instanceof Float) {
+				if(!Float.isFinite(val.getValue().floatValue())) {
+					throw new IllegalArgumentException("NumberValue is not finite!");
+				}
+			}
 			sb.append(((NumberValue) value).getValue().toString());
 		} else if (value instanceof MapValue) {
 			sb.append(this.serializeMap(((MapValue) value).getValueMap(), '{', '}'));
