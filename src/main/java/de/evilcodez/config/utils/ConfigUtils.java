@@ -5,6 +5,8 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import de.evilcodez.config.BaseValue;
 import de.evilcodez.config.ListValue;
@@ -135,6 +137,7 @@ public class ConfigUtils {
 	}
 	
 	public static String unescapeString(String s) {
+		s = unescapeUnicode(s);
 		StringBuilder sb = new StringBuilder();
 		boolean escaping = false;
 		char[] chars = s.toCharArray();
@@ -169,7 +172,7 @@ public class ConfigUtils {
 	}
 	
 	public static String escapeString(String s) {
-		return s.replace("\\", "\\\\")
+		return escapeUnicode(s.replace("\\", "\\\\")
 				.replace("\0", "\\0")
 				.replace("\r", "\\r")
 				.replace("\b", "\\b")
@@ -177,7 +180,39 @@ public class ConfigUtils {
 				.replace("\t", "\\t")
 				.replace("\n", "\\n")
 				.replace("\"", "\\\"")
-				.replace("'", "\\'");
+				.replace("'", "\\'"));
+	}
+
+	public static String escapeUnicode(String s) {
+		char[] chars = s.toCharArray();
+		final StringBuilder sb = new StringBuilder();
+
+		for(int i = 0; i < chars.length; i++) {
+			char c = chars[i];
+			if(c >= 32 && c <= 126) {
+				sb.append(c);
+			}else {
+				StringBuilder escapeString = new StringBuilder(Integer.toHexString(c).toUpperCase());
+				while(escapeString.length() < 4) {
+					escapeString.insert(0, '0');
+				}
+				sb.append("\\u" + escapeString);
+			}
+		}
+
+		return sb.toString();
+	}
+
+	public static String unescapeUnicode(String s) {
+		final Pattern pattern = Pattern.compile("\\\\u([0-9a-fA-F]){4}");
+		Matcher matcher = pattern.matcher(s);
+
+		while(matcher.find()) {
+			String str = matcher.group();
+			s = s.replace(str, String.valueOf((char) Integer.decode("#" + str.substring(2)).intValue()));
+		}
+
+		return s;
 	}
 	
 	public static String attributesToString(Map<String, BaseValue> attributes) {
