@@ -314,7 +314,6 @@ public class ConfigParser {
 		}
 		int start = ++index;
 		boolean escaping = false;
-		int len = 0;
 		while(true) {
 			assertEOF(content);
 			char c = content[index];
@@ -337,20 +336,20 @@ public class ConfigParser {
 			if(c == '\'' && !escaping) {
 				break;
 			}
-			len++;
-			if(len > 1) {
-				throw new SyntaxException(line, "Can't add more characters in character value.");
-			}
+
 			if(escaping) {
 				escaping = false;
 			}
 			
 			index++;
 		}
-		if(len == 0) {
+		final String str = ConfigUtils.unescapeString(new String(Arrays.copyOfRange(content, start, index)));
+		if(str.length() == 0) {
 			throw new SyntaxException(line, "Character value can't be empty!");
+		}else if(str.length() > 1) {
+			throw new SyntaxException(line, "Character value can't have more than one character!");
 		}
-		return new CharValue(ConfigUtils.unescapeString(new String(Arrays.copyOfRange(content, start, index))).charAt(0));
+		return new CharValue(str.charAt(0));
 	}
 	
 	private void skipWhiteSpaces(char[] content) {

@@ -109,7 +109,7 @@ public class ConfigUtils {
 	}
 	
 	public static boolean isEscapeCharacter(char c) {
-		return c == '0' || c == 'r' || c == 'b' || c == '\\' || c == 't' || c == 'f' || c == 'n' || c == '\'' || c == '\"';
+		return c == '0' || c == 'r' || c == 'b' || c == '\\' || c == 't' || c == 'f' || c == 'n' || c == '\'' || c == '\"' || c == 'u';
 	}
 	
 	public static boolean isValidMapKeyCharacter(char c) {
