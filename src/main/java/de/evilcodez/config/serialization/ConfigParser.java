@@ -149,57 +149,58 @@ public class ConfigParser {
 		}
 		index++;
 		assertEOF(content);
-		final Map<String, BaseValue> map = new HashMap<String, BaseValue>();
-		boolean parsingField = false;
-		int fieldNameStart = -1;
+		final Map<String, BaseValue> map = new HashMap<>();
 		String fieldName = null;
+		boolean parsingField = false;
 		while(true) {
 			assertEOF(content);
-			if(parsingField && !ConfigUtils.isValidMapKeyCharacter(content[index])) {
-				fieldName = new String(Arrays.copyOfRange(content, fieldNameStart, index));
-			}
 			this.skipWhiteSpaces(content);
 			char c = content[index];
-			
+
 			if(c == endChar) {
 				break;
 			}
-			
+
 			if(!parsingField && (c == ',' || c == ';')) {
 				index++;
 				continue;
 			}
-			
-			if((c == '=' || c == ':') && parsingField) {
-				if(!ConfigUtils.isValidMapFieldName(fieldName)) {
-					throw new SyntaxException(line, "Field name '" + fieldName + "' is not valid.");
-				}
-				index++;
+
+			if(!parsingField && ConfigUtils.isValidMapKeyCharacter(c)) {
+				parsingField = true;
+				fieldName = c == '"' ? this.parseString(content).getValue() : this.parseFieldName(content);
+				continue;
+			}
+
+			if(parsingField && (c == '=' || c == ':')) {
 				this.skipWhiteSpaces(content);
 				if(map.containsKey(fieldName)) {
 					throw new SyntaxException(line, "Duplicate field \"" + fieldName + "\".");
 				}
-				map.put(fieldName, this.parse0(content));
-				parsingField = false;
 				index++;
+				map.put(fieldName, this.parse0(content));
+				index++;
+				parsingField = false;
 				continue;
-			}else if(c == '=' && !parsingField) {
-				throw new SyntaxException(line, "Unexpected character '='.");
-			}
-			if(!parsingField && ConfigUtils.isValidMapKeyCharacter(c)) {
-				parsingField = true;
-				fieldNameStart = index;
-			}else if(!ConfigUtils.isValidMapKeyCharacter(c)) {
-				if(parsingField) {
-					throw new SyntaxException(line, "Unexpected character '" + c + "' in field name at " + new String(Arrays.copyOfRange(content, fieldNameStart, index)) + ".");
-				}else {
-					throw new SyntaxException(line, "Unexpected character '" + c + "'.");
-				}
 			}
 			
 			index++;
 		}
 		return new MapValue(map);
+	}
+
+	private String parseFieldName(char[] content) {
+		skipWhiteSpaces(content);
+		int fieldNameStart = index;
+		String fieldName = null;
+		while (true) {
+			if (!ConfigUtils.isValidMapKeyCharacter(content[index])) {
+				fieldName = new String(Arrays.copyOfRange(content, fieldNameStart, index));
+				break;
+			}
+			index++;
+		}
+		return fieldName;
 	}
 	
 	private NumberValue parseNumber(char[] content) {

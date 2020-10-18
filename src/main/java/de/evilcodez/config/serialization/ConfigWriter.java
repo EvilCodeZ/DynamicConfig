@@ -13,8 +13,9 @@ public class ConfigWriter {
 
 	private final String tabString;
 	private boolean prettyPrinting;
-	private boolean semicolonSeperator;
-	private boolean mapColonSeperator;
+	private boolean semicolonSeparator;
+	private boolean mapColonSeparator;
+	private boolean mapStringFields;
 	private int tabCount;
 	private boolean isWriting;
 
@@ -23,19 +24,19 @@ public class ConfigWriter {
 	}
 
 	public ConfigWriter(boolean prettyPrinting) {
-		this(prettyPrinting, false, false);
+		this("\t", prettyPrinting, false, false, false);
 	}
 
-	public ConfigWriter(boolean prettyPrinting, boolean semicolonSeperator, boolean mapColonSeperator) {
-		this.tabString = "\t";
+	public ConfigWriter(String tabString, boolean prettyPrinting, boolean semicolonSeparator, boolean mapColonSeparator, boolean mapStringFields) {
+		this.tabString = tabString;
 		this.prettyPrinting = prettyPrinting;
-		this.semicolonSeperator = semicolonSeperator;
-		this.mapColonSeperator = mapColonSeperator;
+		this.semicolonSeparator = semicolonSeparator;
+		this.mapColonSeparator = mapColonSeparator;
+		this.mapStringFields = mapStringFields;
 	}
 
 	public ConfigWriter(boolean prettyPrinting, String tabString) {
-		this.tabString = tabString;
-		this.prettyPrinting = prettyPrinting;
+		this(tabString, prettyPrinting, false, false, false);
 	}
 
 	public String serialize(BaseValue value) {
@@ -89,20 +90,20 @@ public class ConfigWriter {
 
 		int idx = 0;
 		for (String key : map.keySet()) {
-			if (!ConfigUtils.isValidMapFieldName(key)) {
-				throw new IllegalArgumentException(
-						"Illegal field name " + (startChar == '(' ? "attribute map" : "map") + ": " + key);
-			}
 			if (pretty) {
 				sb.append(tabString());
 			}
-			sb.append(key);
-			if(prettyPrinting && !mapColonSeperator) sb.append(" ");
-			sb.append(mapColonSeperator ? ":" : "=");
+			if(!ConfigUtils.isValidMapFieldName(key) || mapStringFields) {
+				sb.append("\"").append(ConfigUtils.escapeString(key)).append("\"");
+			}else {
+				sb.append(key);
+			}
+			if(prettyPrinting && !mapColonSeparator) sb.append(" ");
+			sb.append(mapColonSeparator ? ":" : "=");
 			if(prettyPrinting) sb.append(" ");
 			sb.append(this.serialize0(map.get(key)));
 			if (idx < map.size() - 1) {
-				final char seperator = semicolonSeperator ? ';' : ',';
+				final char seperator = semicolonSeparator ? ';' : ',';
 				sb.append(prettyPrinting && isAttribMap ? seperator + " " : seperator);
 			}
 			if (pretty) {
@@ -135,7 +136,7 @@ public class ConfigWriter {
 			}
 			sb.append(this.serialize0(list.get(i)));
 			if (i < list.size() - 1) {
-				sb.append(semicolonSeperator ? ';' : ',');
+				sb.append(semicolonSeparator ? ';' : ',');
 			}
 			if (b) {
 				sb.append(System.lineSeparator());
@@ -165,12 +166,12 @@ public class ConfigWriter {
 		fw.close();
 	}
 
-	public boolean isMapColonSeperator() {
-		return mapColonSeperator;
+	public boolean isMapColonSeparator() {
+		return mapColonSeparator;
 	}
 
-	public void setMapColonSeperator(boolean mapColonSeperator) {
-		this.mapColonSeperator = mapColonSeperator;
+	public void setMapColonSeparator(boolean mapColonSeparator) {
+		this.mapColonSeparator = mapColonSeparator;
 	}
 
 	public boolean isPrettyPrinting() {
@@ -181,11 +182,19 @@ public class ConfigWriter {
 		this.prettyPrinting = prettyPrinting;
 	}
 
-	public boolean isSemicolonSeperator() {
-		return semicolonSeperator;
+	public boolean isSemicolonSeparator() {
+		return semicolonSeparator;
 	}
 
-	public void setSemicolonSeperator(boolean semicolonSeperator) {
-		this.semicolonSeperator = semicolonSeperator;
+	public void setSemicolonSeparator(boolean semicolonSeparator) {
+		this.semicolonSeparator = semicolonSeparator;
+	}
+
+	public boolean isMapStringFields() {
+		return mapStringFields;
+	}
+
+	public void setMapStringFields(boolean mapStringFields) {
+		this.mapStringFields = mapStringFields;
 	}
 }
