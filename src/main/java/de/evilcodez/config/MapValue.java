@@ -12,7 +12,7 @@ public class MapValue extends BaseValue {
 	private final Map<String, BaseValue> valueMap;
 	
 	public MapValue() {
-		this.valueMap = new HashMap<String, BaseValue>();
+		this.valueMap = new HashMap<>();
 	}
 	
 	public MapValue(Map<String, BaseValue> valueMap) {
