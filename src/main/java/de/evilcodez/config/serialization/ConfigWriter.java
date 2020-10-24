@@ -103,7 +103,7 @@ public class ConfigWriter {
 			if (pretty) {
 				sb.append(tabString());
 			}
-			if(!ConfigUtils.isValidMapFieldName(key) || mapStringFields) {
+			if(!ConfigUtils.isValidMapFieldName(key) || mapStringFields || key.startsWith("\"")) {
 				sb.append("\"").append(ConfigUtils.escapeString(key)).append("\"");
 			}else {
 				sb.append(key);
