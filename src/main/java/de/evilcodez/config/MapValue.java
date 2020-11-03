@@ -26,6 +26,15 @@ public class MapValue extends BaseValue {
 		}
 		return null;
 	}
+
+	public MapValue getMapOrDefault(String key, MapValue defaultValue) {
+		if(!has(key)) return defaultValue;
+		try {
+			return (MapValue) valueMap.get(key);
+		}catch(ClassCastException ignored) {
+		}
+		return defaultValue;
+	}
 	
 	public BaseValue setMap(String key, MapValue map) {
 		valueMap.put(key, map);
@@ -39,6 +48,15 @@ public class MapValue extends BaseValue {
 		}
 		return null;
 	}
+
+	public ListValue getListOrDefault(String key, ListValue defaultValue) {
+		if(!has(key)) return defaultValue;
+		try {
+			return (ListValue) this.valueMap.get(key);
+		}catch(ClassCastException ignored) {
+		}
+		return defaultValue;
+	}
 	
 	public ListValue setList(String key, ListValue list) {
 		valueMap.put(key, list);
@@ -51,6 +69,15 @@ public class MapValue extends BaseValue {
 		}catch(ClassCastException ignored) {
 		}
 		return "";
+	}
+
+	public String getStringOrDefault(String key, String defaultValue) {
+		if(!has(key)) return defaultValue;
+		try {
+			return ((StringValue) valueMap.get(key)).getValue();
+		}catch(ClassCastException ignored) {
+		}
+		return defaultValue;
 	}
 	
 	public BaseValue setString(String key, String value) {
@@ -66,6 +93,15 @@ public class MapValue extends BaseValue {
 		}
 		return 0;
 	}
+
+	public char getCharOrDefault(String key, char defaultValue) {
+		if(!has(key)) return defaultValue;
+		try {
+			return ((CharValue) valueMap.get(key)).getValue();
+		}catch(ClassCastException ignored) {
+		}
+		return defaultValue;
+	}
 	
 	public BaseValue setChar(String key, char value) {
 		CharValue val = new CharValue(value);
@@ -78,9 +114,18 @@ public class MapValue extends BaseValue {
 			return ((NumberValue) valueMap.get(key)).getValue();
 		}catch(ClassCastException ignored) {
 		}
-		return new Integer(0);
+		return 0;
 	}
-	
+
+	public Number getNumberOrDefault(String key, Number defaultValue) {
+		if(!has(key)) return defaultValue;
+		try {
+			return ((NumberValue) valueMap.get(key)).getValue();
+		}catch(ClassCastException ignored) {
+		}
+		return defaultValue;
+	}
+
 	public BaseValue setNumber(String key, Number value) {
 		NumberValue val = new NumberValue(value);
 		valueMap.put(key, val);
@@ -94,7 +139,16 @@ public class MapValue extends BaseValue {
 		}
 		return false;
 	}
-	
+
+	public boolean getBooleanOrDefault(String key, boolean defaultValue) {
+		if(!has(key)) return defaultValue;
+		try {
+			return ((BooleanValue) valueMap.get(key)).getValue();
+		}catch(ClassCastException ignored) {
+		}
+		return defaultValue;
+	}
+
 	public BaseValue setBoolean(String key, boolean value) {
 		BooleanValue val = new BooleanValue(value);
 		valueMap.put(key, val);
@@ -103,6 +157,11 @@ public class MapValue extends BaseValue {
 	
 	public BaseValue get(String key) {
 		return valueMap.get(key);
+	}
+
+	public BaseValue getOrDefault(String key, BaseValue defaultValue) {
+		if(!has(key)) return defaultValue;
+		return this.valueMap.get(key);
 	}
 	
 	public BaseValue set(String key, BaseValue value) {
