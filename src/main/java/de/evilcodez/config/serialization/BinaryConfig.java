@@ -56,6 +56,7 @@ public class BinaryConfig {
 			}else {
 				out.writeByte(id);
 			}
+			writeMap(value.getAttributes(), out);
 		}else if (value instanceof MapValue) {
 			final Map<String, BaseValue> map = ((MapValue) value).getValueMap();
 			out.writeByte(id);
@@ -148,7 +149,7 @@ public class BinaryConfig {
 		int bitmask = in.readUnsignedByte();
 		int id = bitmask & 0xF;
 		int additionalData = bitmask >> 4;
-		
+
 		Class<? extends BaseValue> clazz = ID_TO_CLASSMAP.get(id);
 		if(clazz == null) {
 			throw new IOException("Bad value id: " + id);
