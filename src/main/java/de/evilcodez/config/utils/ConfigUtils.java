@@ -1,16 +1,16 @@
 package de.evilcodez.config.utils;
 
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
 import de.evilcodez.config.BaseValue;
 import de.evilcodez.config.ListValue;
 import de.evilcodez.config.MapValue;
+import de.evilcodez.config.serialization.SyntaxException;
+import de.evilcodez.config.serialization.object.path.ListValuePath;
+import de.evilcodez.config.serialization.object.path.MapValuePath;
+import de.evilcodez.config.serialization.object.path.ValuePath;
+
+import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class ConfigUtils {
 	
@@ -226,5 +226,136 @@ public class ConfigUtils {
 			result = result.substring(0, result.length() - 2);
 		}
 		return "(" + result + ")";
+	}
+
+	public static String parseString(char[] content, int offset) {
+		int index = offset;
+		if(content[index] != '"') {
+			throw new SyntaxException(1, "Expected character '\"' not found!");
+		}
+		int start = ++index;
+		boolean escaping = false;
+		while(true) {
+			if (index >= content.length) {
+				throw new SyntaxException(1, "Not expected '<eof>'");
+			}
+			char c = content[index];
+
+			if(c == '\r') {
+				throw new SyntaxException(1, "Not expected a carriage return in string.");
+			}
+			if(c == '\n') {
+				throw new SyntaxException(1, "Not expected a line seperator in string.");
+			}
+
+			if(c == '\\' && !escaping) {
+				escaping = true;
+				index++;
+				continue;
+			}
+			if(escaping && !ConfigUtils.isEscapeCharacter(c)) {
+				throw new SyntaxException(1, "Not an escape character '" + c + "' in string at position " + (index - start) + ".");
+			}
+
+			if(c == '"' && !escaping) {
+				break;
+			}
+			if(escaping) {
+				escaping = false;
+			}
+
+			index++;
+		}
+		return ConfigUtils.unescapeString(new String(Arrays.copyOfRange(content, start, index)));
+	}
+
+	public static BaseValue applyPath(BaseValue root, ValuePath path) {
+		final Stack<Object> actions = new Stack<>();
+		ValuePath node = path;
+		while(node != null) {
+			if(node instanceof MapValuePath) {
+				actions.push(((MapValuePath) node).getKey());
+				actions.push("->");
+			}else {
+				actions.push(((ListValuePath) node).getIndex());
+				actions.push("[");
+			}
+			node = node.getParentNode();
+		}
+		BaseValue val = root;
+		while(!actions.isEmpty()) {
+			final String action = (String) actions.pop();
+			switch (action) {
+				case "->":
+					final String key = (String) actions.pop();
+					if(!(val instanceof MapValue)) {
+						throw new ClassCastException("Expected a map but got: " + val.getClass().getSimpleName());
+					}
+					final MapValue map = (MapValue) val;
+					if(!map.has(key)) {
+						throw new RuntimeException("Key not found: " + key);
+					}
+					val = map.get(key);
+					break;
+				case "[":
+					final int idx = (int) actions.pop();
+					if(!(val instanceof ListValue)) {
+						throw new ClassCastException("Expected a list but got: " + val.getClass().getSimpleName());
+					}
+					final ListValue list = (ListValue) val;
+					if(idx < 0 || idx >= list.size()) {
+						throw new IndexOutOfBoundsException("List[0 - " + (list.size() - 1) + "] index out bounds: " + idx);
+					}
+					val = list.get(idx);
+					break;
+				default:
+					throw new RuntimeException("Unexpected action: " + action);
+			}
+		}
+		return val;
+	}
+
+	public static ValuePath createPath(String path) {
+		final Queue<String> tokens = new ArrayDeque<>();
+		if(path.startsWith("root")) {
+			path = path.substring("root".length());
+		}
+		while(!path.isEmpty()) {
+			if(path.startsWith("->\"")) {
+				path = path.substring("->".length());
+				tokens.add("->");
+				final String key = ConfigUtils.parseString(path.toCharArray(), 0);
+				path = path.substring(2 + key.length());
+				tokens.add(key);
+			}else if(path.startsWith("[")) {
+				path = path.substring(1);
+				int idx = 0;
+				final StringBuilder sb = new StringBuilder();
+				while(true) {
+					final char c = path.charAt(idx++);
+					if(c == ']') {
+						break;
+					}
+					sb.append(c);
+				}
+				tokens.add("[");
+				tokens.add(sb.toString());
+				path = path.substring(sb.length() + 1);
+			}else {
+				throw new RuntimeException("Unknown token: " + path);
+			}
+		}
+		ValuePath pathNode = null;
+		while(!tokens.isEmpty()) {
+			final String token = tokens.poll();
+			if(token.equals("->")) {
+				pathNode = new MapValuePath(tokens.poll(), pathNode);
+			}else if(token.equals("[")) {
+				pathNode = new ListValuePath(Integer.parseInt(tokens.poll()), pathNode);
+			}else {
+				throw new RuntimeException("Unknown token: " + token);
+			}
+		}
+		return pathNode;
 	}
 }

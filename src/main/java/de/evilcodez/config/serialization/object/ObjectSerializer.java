@@ -30,6 +30,10 @@ public class ObjectSerializer {
     }
 
     public <T> BaseValue serialize(T value) {
+        return this.serialize(value, false);
+    }
+
+    public <T> BaseValue serialize(T value, boolean enableReferences) {
         if(value == null) {
             return new NullValue();
         }
@@ -37,10 +41,15 @@ public class ObjectSerializer {
         if(serializer == null) {
             throw new NullPointerException("TypeSerializer for type " + value.getClass().getName() + " not found!");
         }
-        return serializer.serialize(this, value, value.getClass());
+        final SerializationContext ctx = new SerializationContext(enableReferences);
+        return serializer.serialize(this, ctx, null, value, value.getClass());
     }
 
     public <T> T deserialize(BaseValue value, Class<T> typeClass) {
+        return this.deserialize(value, typeClass, false);
+    }
+
+    public <T> T deserialize(BaseValue value, Class<T> typeClass, boolean enableReferences) {
         if(value instanceof NullValue) {
             return null;
         }
@@ -48,7 +57,11 @@ public class ObjectSerializer {
         if(serializer == null) {
             throw new NullPointerException("TypeSerializer for type " + value.getClass().getName() + " not found!");
         }
-        return serializer.deserialize(this, value, typeClass);
+        final SerializationContext ctx = new SerializationContext(enableReferences);
+        ctx.put(DefaultSerializer.ROOT_OBJECT_KEY, value);
+        final T val = serializer.deserialize(this, ctx, null, value, typeClass);
+        serializer.postDeserialize(this, ctx, null, val);
+        return val;
     }
 
     public void registerTypeSerializer(Class<?> typeClass, TypeSerializer<?> serializer) {
