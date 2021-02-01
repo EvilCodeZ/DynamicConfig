@@ -42,4 +42,56 @@ public abstract class BaseValue {
 	public abstract BaseValue copy();
 	
 	public abstract boolean equals(Object object);
+
+	public final String asString() {
+		return ((StringValue) this).getValue();
+	}
+
+	public final Number asNumber() {
+		return ((NumberValue) this).getValue();
+	}
+
+	public final int asInt() {
+		return this.asNumber().intValue();
+	}
+
+	public final long asLong() {
+		return this.asNumber().longValue();
+	}
+
+	public final float asFloat() {
+		return this.asNumber().floatValue();
+	}
+
+	public final double asDouble() {
+		return this.asNumber().doubleValue();
+	}
+
+	public final short asShort() {
+		return this.asNumber().shortValue();
+	}
+
+	public final byte asByte() {
+		return this.asNumber().byteValue();
+	}
+
+	public final boolean asBoolean() {
+		return ((BooleanValue) this).getValue();
+	}
+
+	public final char asChar() {
+		return ((CharValue) this).getValue();
+	}
+
+	public final MapValue asMap() {
+		return (MapValue) this;
+	}
+
+	public final ListValue asList() {
+		return (ListValue) this;
+	}
+
+	public final boolean isNull() {
+		return this instanceof NullValue;
+	}
 }
