@@ -18,6 +18,6 @@ public class ColorSerializer implements TypeSerializer<Color> {
 
     @Override
     public Color deserialize(ObjectSerializer serializer, SerializationContext ctx, ValuePath path, BaseValue value, Class<?> typeClass) {
-        return new Color(((NumberValue) value).getValue().intValue());
+        return new Color(((NumberValue) value).getValue().intValue(), true);
     }
 }
