@@ -73,7 +73,7 @@ public class DefaultSerializer implements TypeSerializer<Object> {
         while(clazz != null) {
             for(int i = 0; i < clazz.getDeclaredFields().length; i++) {
                 final Field field = clazz.getDeclaredFields()[i];
-                if((field.getModifiers() & Modifier.STATIC) != 0) {
+                if((field.getModifiers() & Modifier.STATIC) != 0 || (field.getModifiers() & Modifier.TRANSIENT) != 0) {
                     continue;
                 }
                 if(field.isAnnotationPresent(SkipFieldSerialization.class)
@@ -164,7 +164,7 @@ public class DefaultSerializer implements TypeSerializer<Object> {
         while(clazz != null) {
             for(int i = 0; i < clazz.getDeclaredFields().length; i++) {
                 final Field field = clazz.getDeclaredFields()[i];
-                if((field.getModifiers() & Modifier.STATIC) != 0) {
+                if((field.getModifiers() & Modifier.STATIC) != 0 || (field.getModifiers() & Modifier.TRANSIENT) != 0) {
                     continue;
                 }
                 if(field.isAnnotationPresent(SkipFieldSerialization.class)
