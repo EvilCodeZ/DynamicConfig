@@ -194,6 +194,7 @@ public class ConfigParser {
 		int fieldNameStart = index;
 		String fieldName = null;
 		while (true) {
+			assertEOF(content);
 			if (!ConfigUtils.isValidMapKeyCharacter(content[index])) {
 				fieldName = new String(Arrays.copyOfRange(content, fieldNameStart, index));
 				break;
